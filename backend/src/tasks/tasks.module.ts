@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { TasksProcessor } from './tasks.processor';
+import { TaskEntity } from './task.entity';
 
 @Module({
   imports: [
+    // Register TaskEntity so this module can use the repository
+    TypeOrmModule.forFeature([TaskEntity]),
+
     BullModule.registerQueue({
       name: 'tasks',
       connection: {

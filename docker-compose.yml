@@ -7,6 +7,18 @@ services:
     ports:
       - '6379:6379'
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: warehouse-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: warehouse
+      POSTGRES_PASSWORD: warehouse123
+      POSTGRES_DB: warehouse_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   backend:
     build: ./backend
     container_name: warehouse-backend
@@ -16,8 +28,14 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=warehouse
+      - DB_PASSWORD=warehouse123
+      - DB_NAME=warehouse_db
     depends_on:
       - redis
+      - postgres
 
   frontend:
     build: ./frontend
@@ -26,3 +44,6 @@ services:
       - '5173:80'
     depends_on:
       - backend
+
+volumes:
+  postgres_data:  # persists data even if container restarts

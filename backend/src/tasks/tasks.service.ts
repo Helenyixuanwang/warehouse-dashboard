@@ -1,47 +1,54 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Queue } from 'bullmq';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTaskDto, Task } from './task.interface';
+import type { CreateTaskDto, Task } from './task.interface';
+import { TaskEntity } from './task.entity';
 
 @Injectable()
 export class TasksService {
-  // In-memory store — acts as our "database" for now
-  private tasks: Task[] = [];
-
   constructor(
-    // @InjectQueue tells NestJS to inject the BullMQ queue named 'tasks'
     @InjectQueue('tasks') private taskQueue: Queue,
+
+    // @InjectRepository gives us a TypeORM repository for TaskEntity
+    // A repository is like a helper object with methods:
+    // .save(), .find(), .findOne(), .update(), .delete()
+    @InjectRepository(TaskEntity)
+    private taskRepository: Repository<TaskEntity>,
   ) {}
 
-  async createTask(dto: CreateTaskDto): Promise<Task> {
-    const task: Task = {
-      id: uuidv4(),
-      ...dto,          // copies type, robotId, location, priority from dto
+  async createTask(dto: CreateTaskDto): Promise<TaskEntity> {
+    // Create a new entity instance
+    const task = this.taskRepository.create({
+      ...dto,
       status: 'queued',
-      createdAt: new Date(),
-    };
+    });
 
-    this.tasks.push(task);
+    // Save to PostgreSQL
+    const saved = await this.taskRepository.save(task);
 
-    // Add job to the queue — like Celery's .delay()
-    await this.taskQueue.add('process-task', task, {
-      // Lower number = higher priority in BullMQ
+    // Add to BullMQ queue
+    await this.taskQueue.add('process-task', saved, {
       priority: dto.priority === 'high' ? 1 : dto.priority === 'medium' ? 2 : 3,
     });
 
-    return task;
+    return saved;
   }
 
-  getAllTasks(): Task[] {
-    return this.tasks;
+  async getAllTasks(): Promise<TaskEntity[]> {
+    // Find all tasks, newest first
+    return this.taskRepository.find({
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  updateTaskStatus(id: string, status: Task['status']): Task | null {
-    const task = this.tasks.find((t) => t.id === id);
-    if (task) {
-      task.status = status;
-    }
-    return task ?? null;
+  async updateTaskStatus(id: string, status: Task['status']): Promise<TaskEntity | null> {
+    // Update the status column for this id
+    await this.taskRepository.update(id, { status });
+
+    // Return the updated entity
+    return this.taskRepository.findOne({ where: { id } });
   }
 }
