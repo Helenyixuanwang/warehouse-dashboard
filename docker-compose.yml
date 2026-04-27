@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: warehouse-redis
+    ports:
+      - '6379:6379'
+
+  backend:
+    build: ./backend
+    container_name: warehouse-backend
+    ports:
+      - '3001:3001'
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3001
+    depends_on:
+      - redis
+
+  frontend:
+    build: ./frontend
+    container_name: warehouse-frontend
+    ports:
+      - '5173:80'
+    depends_on:
+      - backend
