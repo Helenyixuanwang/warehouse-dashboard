@@ -12,12 +12,13 @@ import { TaskEntity } from './task.entity';
     TypeOrmModule.forFeature([TaskEntity]),
 
     BullModule.registerQueue({
-      name: 'tasks',
-      connection: {
-        host: process.env.REDIS_HOST ?? 'localhost',
-        port: parseInt(process.env.REDIS_PORT ?? '6379'),
-      },
-    }),
+  name: 'tasks',
+  connection: {
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: parseInt(process.env.REDIS_PORT ?? '6379'),
+    password: process.env.REDIS_PASSWORD,
+  },
+}),
   ],
   controllers: [TasksController],
   providers: [TasksService, TasksProcessor],

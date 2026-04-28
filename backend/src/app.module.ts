@@ -22,11 +22,12 @@ import { TaskEntity } from './tasks/task.entity';
     }),
 
     BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST ?? 'localhost',
-        port: parseInt(process.env.REDIS_PORT ?? '6379'),
-      },
-    }),
+  connection: {
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: parseInt(process.env.REDIS_PORT ?? '6379'),
+    password: process.env.REDIS_PASSWORD,
+  },
+}),
 
     TasksModule,
   ],
