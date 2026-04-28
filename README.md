@@ -1,6 +1,13 @@
 # 🏭 Warehouse Task Dashboard
 
-A real-time warehouse task management dashboard inspired by robotics automation systems like Symbotic. Tasks (picking, packing, shipping) are queued and processed by background workers, with live status updates on the dashboard.
+A real-time warehouse task management dashboard inspired by robotics automation systems like Symbotic...
+
+## 🌐 Live Demo
+
+- **Frontend:** https://frontend-production-127d.up.railway.app
+- **Backend API:** https://backend-production-ccf8.up.railway.app/tasks
+
+> Deployed on Railway with PostgreSQL and Redis
 
 ## 🏗️ Architecture
 
