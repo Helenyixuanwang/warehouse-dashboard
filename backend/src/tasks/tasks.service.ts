@@ -31,8 +31,15 @@ export class TasksService {
 
     // Add to BullMQ queue
     await this.taskQueue.add('process-task', saved, {
-      priority: dto.priority === 'high' ? 1 : dto.priority === 'medium' ? 2 : 3,
-    });
+  priority: dto.priority === 'high' ? 1 : dto.priority === 'medium' ? 2 : 3,
+
+  // Retry configuration
+  attempts: 3,  // try up to 3 times total
+  backoff: {
+    type: 'exponential',  // wait longer between each retry
+    delay: 3000,          // first retry after 3s, second after 6s, third after 12s
+  },
+});
 
     return saved;
   }
@@ -51,4 +58,9 @@ export class TasksService {
     // Return the updated entity
     return this.taskRepository.findOne({ where: { id } });
   }
+
+  async markTaskFailed(id: string): Promise<void> {
+  await this.taskRepository.update(id, { status: 'failed' });
+  console.log(`❌ Task ${id} permanently failed after all retries.`);
+}
 }
