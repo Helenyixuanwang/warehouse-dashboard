@@ -1,5 +1,7 @@
 # 🏭 Warehouse Task Dashboard
 
+[![CI](https://github.com/Helenyixuanwang/warehouse-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/Helenyixuanwang/warehouse-dashboard/actions/workflows/ci.yml)
+
 A real-time warehouse task management dashboard inspired by robotics automation systems like Symbotic...
 
 ## 🌐 Live Demo
@@ -8,6 +10,12 @@ A real-time warehouse task management dashboard inspired by robotics automation 
 - **Backend API:** https://backend-production-ccf8.up.railway.app/tasks
 
 > Deployed on Railway with PostgreSQL and Redis
+## 🔄 CI/CD Pipeline
+git push origin main
+→ GitHub Actions: NestJS type check + build (parallel with frontend)
+→ GitHub Actions: React type check + Vite build (parallel with backend)
+→ if both ✅ → Railway auto-deploys backend
+→ if both ✅ → Railway auto-deploys frontend
 
 ## 🏗️ Architecture
 
@@ -26,7 +34,10 @@ A real-time warehouse task management dashboard inspired by robotics automation 
 | Frontend | React 18, TypeScript, Material UI, Jotai |
 | Backend | NestJS, TypeScript, BullMQ |
 | Queue | Redis (via Docker) |
+| Database | PostgreSQL |
 | Containerization | Docker, Docker Compose |
+| Deployment | Railway |
+| CI/CD | GitHub Actions + Railway auto-deploy |
 
 ## ✨ Features
 
